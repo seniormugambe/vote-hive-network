@@ -65,7 +65,7 @@ export const WalletConnection = ({
             <Badge variant="outline" className="border-yellow-500/50 text-yellow-400 mb-1">
               Connected
             </Badge>
-            <span className="text-sm font-mono text-gray-300">
+            <span className="text-sm font-mono text-white">
               {formatAddress(address)}
             </span>
           </div>
@@ -73,7 +73,7 @@ export const WalletConnection = ({
             variant="outline" 
             size="sm"
             onClick={handleDisconnect}
-            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+            className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-white"
           >
             Disconnect
           </Button>
