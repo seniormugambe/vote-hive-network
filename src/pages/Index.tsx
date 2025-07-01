@@ -9,11 +9,17 @@ import { DelegationPanel } from "@/components/DelegationPanel";
 import { CreatePoll } from "@/components/CreatePoll";
 import { ProposalsList } from "@/components/ProposalsList";
 import { VotingStats } from "@/components/VotingStats";
-import { Vote, Users, TrendingUp, Plus, Smartphone } from "lucide-react";
+import { Vote, Users, Plus, Wifi, Battery, Signal } from "lucide-react";
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
+  const [deletedVotes, setDeletedVotes] = useState(0);
+
+  const handleVoteDeletion = () => {
+    setDeletedVotes(prev => prev + 1);
+    console.log(`Vote deleted. Total deleted votes: ${deletedVotes + 1}`);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -22,9 +28,6 @@ const Index = () => {
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-yellow-500 rounded-xl shadow-lg">
-                <Vote className="h-7 w-7 text-black" />
-              </div>
               <div>
                 <h1 className="text-3xl font-bold text-white">
                   VOTYX
@@ -45,14 +48,11 @@ const Index = () => {
       <div className="container mx-auto px-6">
         {!isConnected ? (
           // Welcome screen when not connected - professional full height layout
-          <div className="min-h-[calc(100vh-120px)] flex items-center py-12">
-            <div className="grid lg:grid-cols-2 gap-16 w-full items-center">
+          <div className="min-h-[calc(100vh-120px)] flex items-center py-8">
+            <div className="grid lg:grid-cols-2 gap-12 w-full items-center">
               {/* Left Content - Well Padded */}
-              <div className="space-y-10 lg:pr-8">
+              <div className="space-y-12 lg:pr-12">
                 <div className="space-y-8">
-                  <div className="inline-flex p-4 bg-gradient-to-br from-yellow-500/20 to-yellow-500/10 rounded-2xl border border-yellow-500/30">
-                    <Vote className="h-12 w-12 text-yellow-500" />
-                  </div>
                   <h2 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
                     Welcome to <span className="text-yellow-500 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">VOTYX</span>
                   </h2>
@@ -61,57 +61,56 @@ const Index = () => {
                   </p>
                 </div>
                 
-                <div className="grid gap-6">
-                  <div className="flex items-start space-x-6 p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
-                    <div className="p-3 bg-yellow-500/20 rounded-lg">
-                      <Vote className="h-7 w-7 text-yellow-500 flex-shrink-0" />
+                <div className="grid gap-8">
+                  <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="p-4 bg-yellow-500/20 rounded-lg">
+                      <Vote className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-white text-lg">Direct Voting</h3>
-                      <p className="text-gray-300">Vote directly on proposals that matter to you with full transparency</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-6 p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
-                    <div className="p-3 bg-yellow-500/20 rounded-lg">
-                      <Users className="h-7 w-7 text-yellow-500 flex-shrink-0" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-white text-lg">Smart Delegation</h3>
-                      <p className="text-gray-300">Delegate your voting power to trusted representatives you believe in</p>
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-white text-xl">Direct Voting</h3>
+                      <p className="text-gray-300 text-lg">Vote directly on proposals that matter to you with full transparency</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-6 p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
-                    <div className="p-3 bg-yellow-500/20 rounded-lg">
-                      <TrendingUp className="h-7 w-7 text-yellow-500 flex-shrink-0" />
+                  <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="p-4 bg-yellow-500/20 rounded-lg">
+                      <Users className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-white text-lg">Real-time Analytics</h3>
-                      <p className="text-gray-300">Track voting patterns and delegation statistics in real-time</p>
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-white text-xl">Smart Delegation</h3>
+                      <p className="text-gray-300 text-lg">Delegate your voting power to trusted representatives you believe in</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Right Content - iPhone 13 Pro Mockup */}
-              <div className="flex justify-center lg:justify-end">
+              <div className="flex justify-center lg:justify-center">
                 <div className="relative">
-                  {/* iPhone 13 Pro Frame - More accurate proportions */}
-                  <div className="w-72 h-[580px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative">
+                  {/* iPhone 13 Pro Frame - More realistic proportions */}
+                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative">
                     {/* iPhone 13 Pro Camera Notch */}
                     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-7 bg-black rounded-2xl z-20 border border-gray-800"></div>
                     
                     {/* Screen */}
                     <div className="w-full h-full bg-black rounded-[3rem] overflow-hidden relative border border-gray-600">
+                      {/* Status Bar */}
+                      <div className="absolute top-0 left-0 right-0 h-12 bg-black z-10 flex items-center justify-between px-8 pt-2">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-white text-sm font-medium">9:41</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Signal className="h-4 w-4 text-white" />
+                          <Wifi className="h-4 w-4 text-white" />
+                          <Battery className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                      
                       {/* Screen Content */}
-                      <div className="p-8 pt-16 h-full bg-gradient-to-b from-gray-900 via-black to-gray-900">
+                      <div className="p-8 pt-20 h-full bg-gradient-to-b from-gray-900 via-black to-gray-900">
                         <div className="text-center space-y-6">
-                          <div className="inline-flex p-3 bg-yellow-500/20 rounded-xl border border-yellow-500/30">
-                            <Vote className="h-8 w-8 text-yellow-500" />
-                          </div>
-                          <div className="space-y-2">
-                            <h3 className="text-white font-bold text-xl">VOTYX Mobile</h3>
+                          <div className="space-y-3">
+                            <h3 className="text-white font-bold text-2xl">VOTYX Mobile</h3>
                             <p className="text-gray-400 text-sm">Governance on the go</p>
                           </div>
                           
@@ -136,10 +135,10 @@ const Index = () => {
                             
                             <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
                               <div className="flex items-center space-x-3">
-                                <TrendingUp className="h-5 w-5 text-gray-400" />
+                                <Vote className="h-5 w-5 text-gray-400" />
                                 <div className="text-left">
-                                  <span className="text-gray-200 text-sm font-medium">Success Rate</span>
-                                  <p className="text-green-400 text-lg font-bold">78%</p>
+                                  <span className="text-gray-200 text-sm font-medium">Deleted Votes</span>
+                                  <p className="text-red-400 text-lg font-bold">{deletedVotes}</p>
                                 </div>
                               </div>
                             </div>
@@ -150,8 +149,8 @@ const Index = () => {
                   </div>
                   
                   {/* Enhanced Glow Effect */}
-                  <div className="absolute inset-0 bg-yellow-500/30 rounded-[3.5rem] blur-2xl -z-10 animate-pulse"></div>
-                  <div className="absolute inset-4 bg-yellow-500/20 rounded-[3rem] blur-xl -z-10"></div>
+                  <div className="absolute inset-0 bg-yellow-500/20 rounded-[3.5rem] blur-2xl -z-10 animate-pulse"></div>
+                  <div className="absolute inset-4 bg-yellow-500/15 rounded-[3rem] blur-xl -z-10"></div>
                 </div>
               </div>
             </div>
@@ -160,7 +159,7 @@ const Index = () => {
           // Main dashboard when connected
           <div className="py-8">
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="bg-gray-900 border-yellow-500/20 p-1">
+              <TabsList className="bg-gray-900 border-yellow-500/20 p-1 grid grid-cols-4 w-full max-w-2xl">
                 <TabsTrigger 
                   value="overview" 
                   className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white"
@@ -191,13 +190,13 @@ const Index = () => {
               <TabsContent value="overview" className="space-y-6">
                 <VotingStats address={walletAddress} />
                 <div className="grid lg:grid-cols-2 gap-6">
-                  <DelegationPanel address={walletAddress} />
+                  <DelegationPanel address={walletAddress} onVoteDelete={handleVoteDeletion} />
                   <ProposalsList limit={3} />
                 </div>
               </TabsContent>
 
               <TabsContent value="delegate">
-                <DelegationPanel address={walletAddress} expanded={true} />
+                <DelegationPanel address={walletAddress} expanded={true} onVoteDelete={handleVoteDeletion} />
               </TabsContent>
 
               <TabsContent value="proposals">

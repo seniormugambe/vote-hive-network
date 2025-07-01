@@ -6,17 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Users, User, CheckCircle, ArrowRight } from "lucide-react";
+import { Users, User, CheckCircle, ArrowRight, Trash2 } from "lucide-react";
 
 interface DelegationPanelProps {
   address: string;
   expanded?: boolean;
+  onVoteDelete?: () => void;
 }
 
-export const DelegationPanel = ({ address, expanded = false }: DelegationPanelProps) => {
+export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: DelegationPanelProps) => {
   const [delegationType, setDelegationType] = useState("self");
   const [customAddress, setCustomAddress] = useState("");
   const [isDelegating, setIsDelegating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Mock data - in real app, this would come from blockchain
   const currentDelegate = {
@@ -37,6 +39,17 @@ export const DelegationPanel = ({ address, expanded = false }: DelegationPanelPr
     setTimeout(() => {
       setIsDelegating(false);
     }, 2000);
+  };
+
+  const handleDeleteVote = async () => {
+    setIsDeleting(true);
+    // Simulate vote deletion
+    setTimeout(() => {
+      setIsDeleting(false);
+      if (onVoteDelete) {
+        onVoteDelete();
+      }
+    }, 1500);
   };
 
   const formatAddress = (addr: string) => {
@@ -143,14 +156,26 @@ export const DelegationPanel = ({ address, expanded = false }: DelegationPanelPr
           </div>
         )}
 
-        {/* Action Button */}
-        <Button 
-          onClick={handleDelegate}
-          disabled={isDelegating || (delegationType === "custom" && !customAddress)}
-          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
-        >
-          {isDelegating ? "Delegating..." : "Update Delegation"}
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex space-x-3">
+          <Button 
+            onClick={handleDelegate}
+            disabled={isDelegating || (delegationType === "custom" && !customAddress)}
+            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+          >
+            {isDelegating ? "Delegating..." : "Update Delegation"}
+          </Button>
+          
+          <Button
+            onClick={handleDeleteVote}
+            disabled={isDeleting}
+            variant="outline"
+            className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            {isDeleting ? "Deleting..." : "Delete Vote"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
