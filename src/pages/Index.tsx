@@ -7,8 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletConnection } from "@/components/WalletConnection";
 import { DelegationPanel } from "@/components/DelegationPanel";
 import { CreatePoll } from "@/components/CreatePoll";
-import { ProposalsList } from "@/components/ProposalsList";
-import { VotingStats } from "@/components/VotingStats";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Vote, Users, Plus, Wifi, Battery, Signal, ExternalLink, HelpCircle } from "lucide-react";
 
@@ -32,7 +30,8 @@ const Index = () => {
               <img 
                 src="/lovable-uploads/2622a6dd-905c-4bae-90cd-3231612a2a2c.png" 
                 alt="VOTYX Logo" 
-                className="w-10 h-10"
+                className="w-10 h-10 brightness-0 saturate-100 invert-0 sepia-100 saturate-7500 hue-rotate-[45deg]"
+                style={{ filter: 'brightness(0) saturate(100%) invert(77%) sepia(81%) saturate(1869%) hue-rotate(1deg) brightness(102%) contrast(101%)' }}
               />
               <div>
                 <h1 className="text-3xl font-bold text-white">
@@ -222,25 +221,13 @@ const Index = () => {
         ) : (
           // Main dashboard when connected
           <div className="py-8">
-            <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="bg-gray-900 border-yellow-500/20 p-1 grid grid-cols-4 w-full max-w-2xl">
-                <TabsTrigger 
-                  value="overview" 
-                  className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white"
-                >
-                  Overview
-                </TabsTrigger>
+            <Tabs defaultValue="delegate" className="space-y-6">
+              <TabsList className="bg-gray-900 border-yellow-500/20 p-1 grid grid-cols-2 w-full max-w-lg mx-auto">
                 <TabsTrigger 
                   value="delegate" 
                   className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white"
                 >
                   Delegation
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="proposals" 
-                  className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white"
-                >
-                  Proposals
                 </TabsTrigger>
                 <TabsTrigger 
                   value="create" 
@@ -251,20 +238,8 @@ const Index = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="space-y-6">
-                <VotingStats address={walletAddress} />
-                <div className="grid lg:grid-cols-2 gap-6">
-                  <DelegationPanel address={walletAddress} onVoteDelete={handleVoteDeletion} />
-                  <ProposalsList limit={3} />
-                </div>
-              </TabsContent>
-
               <TabsContent value="delegate">
                 <DelegationPanel address={walletAddress} expanded={true} onVoteDelete={handleVoteDeletion} />
-              </TabsContent>
-
-              <TabsContent value="proposals">
-                <ProposalsList />
               </TabsContent>
 
               <TabsContent value="create">
