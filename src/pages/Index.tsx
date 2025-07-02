@@ -9,7 +9,8 @@ import { DelegationPanel } from "@/components/DelegationPanel";
 import { CreatePoll } from "@/components/CreatePoll";
 import { ProposalsList } from "@/components/ProposalsList";
 import { VotingStats } from "@/components/VotingStats";
-import { Vote, Users, Plus, Wifi, Battery, Signal } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Vote, Users, Plus, Wifi, Battery, Signal, ExternalLink, HelpCircle } from "lucide-react";
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -28,6 +29,11 @@ const Index = () => {
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              <img 
+                src="/lovable-uploads/2622a6dd-905c-4bae-90cd-3231612a2a2c.png" 
+                alt="VOTYX Logo" 
+                className="w-10 h-10"
+              />
               <div>
                 <h1 className="text-3xl font-bold text-white">
                   VOTYX
@@ -61,27 +67,85 @@ const Index = () => {
                   </p>
                 </div>
                 
-                <div className="grid gap-8">
-                  <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
-                    <div className="p-4 bg-yellow-500/20 rounded-lg">
-                      <Vote className="h-8 w-8 text-yellow-500 flex-shrink-0" />
+                <TooltipProvider>
+                  <div className="grid gap-8">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                      <div className="p-4 bg-yellow-500/20 rounded-lg">
+                        <Vote className="h-8 w-8 text-yellow-500 flex-shrink-0" />
+                      </div>
+                      <div className="space-y-3 flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-white text-xl">Direct Voting</h3>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="h-4 w-4 text-gray-400 hover:text-yellow-500" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Vote directly on proposals without delegating to others</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-gray-300 text-lg">Vote directly on proposals that matter to you with full transparency</p>
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      <h3 className="font-semibold text-white text-xl">Direct Voting</h3>
-                      <p className="text-gray-300 text-lg">Vote directly on proposals that matter to you with full transparency</p>
+                    
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                      <div className="p-4 bg-yellow-500/20 rounded-lg">
+                        <Users className="h-8 w-8 text-yellow-500 flex-shrink-0" />
+                      </div>
+                      <div className="space-y-3 flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-white text-xl">Smart Delegation</h3>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="h-4 w-4 text-gray-400 hover:text-yellow-500" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delegation allows you to assign your voting power to trusted stewards who vote on your behalf</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-gray-300 text-lg">Delegate your voting power to trusted stewards with proven track records</p>
+                        <div className="flex items-center space-x-4 mt-3">
+                          <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+                            12,450 Total Delegated
+                          </Badge>
+                          <Badge variant="outline" className="border-green-500/50 text-green-400">
+                            95% Success Rate
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                      <div className="p-4 bg-yellow-500/20 rounded-lg">
+                        <ExternalLink className="h-8 w-8 text-yellow-500 flex-shrink-0" />
+                      </div>
+                      <div className="space-y-3 flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-white text-xl">Unlock DAO Integration</h3>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="h-4 w-4 text-gray-400 hover:text-yellow-500" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Direct integration with Unlock DAO proposals and Snapshot governance</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-gray-300 text-lg">Access Unlock DAO proposals and participate via Snapshot integration</p>
+                        <div className="flex items-center space-x-4 mt-3">
+                          <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+                            Snapshot Ready
+                          </Badge>
+                          <Badge variant="outline" className="border-purple-500/50 text-purple-400">
+                            Live Proposals
+                          </Badge>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
-                    <div className="p-4 bg-yellow-500/20 rounded-lg">
-                      <Users className="h-8 w-8 text-yellow-500 flex-shrink-0" />
-                    </div>
-                    <div className="space-y-3">
-                      <h3 className="font-semibold text-white text-xl">Smart Delegation</h3>
-                      <p className="text-gray-300 text-lg">Delegate your voting power to trusted representatives you believe in</p>
-                    </div>
-                  </div>
-                </div>
+                </TooltipProvider>
               </div>
 
               {/* Right Content - iPhone 13 Pro Mockup */}
