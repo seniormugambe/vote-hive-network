@@ -21,11 +21,16 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Mock data - in real app, this would come from blockchain
-  const currentDelegate = {
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-    name: "Self",
-    votingPower: "1,250"
-  };
+  const [delegationStatus, setDelegationStatus] = useState({
+    currentDelegatee: {
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      name: "Self",
+      isActive: true
+    },
+    votingPower: "1,250",
+    delegatedVotes: "0",
+    lastUpdated: "2024-01-15"
+  });
 
   const popularDelegates = [
     { address: "0xabc123...", name: "Alice Protocol", votes: "12,450", successRate: "92%" },
@@ -68,17 +73,41 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Current Delegation Status */}
-        <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-white">Currently Delegated To</h4>
-              <p className="text-sm text-gray-300">{currentDelegate.name}</p>
-              <p className="text-xs font-mono text-gray-400">{formatAddress(currentDelegate.address)}</p>
+        {/* Delegation Status Display */}
+        <div className="space-y-4">
+          <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-white text-lg">Delegation Status</h4>
+              <Badge variant={delegationStatus.currentDelegatee.isActive ? "default" : "secondary"} 
+                     className="bg-green-500/20 text-green-400 border-green-500/50">
+                {delegationStatus.currentDelegatee.isActive ? "Active" : "Inactive"}
+              </Badge>
             </div>
-            <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
-              {currentDelegate.votingPower} votes
-            </Badge>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <p className="text-sm text-gray-400">Current Delegatee</p>
+                <p className="text-white font-medium">{delegationStatus.currentDelegatee.name}</p>
+                <p className="text-xs font-mono text-gray-400">{formatAddress(delegationStatus.currentDelegatee.address)}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm text-gray-400">Your Voting Power</p>
+                <p className="text-2xl font-bold text-yellow-400">{delegationStatus.votingPower}</p>
+                <p className="text-xs text-gray-400">votes available</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-700">
+              <div>
+                <p className="text-xs text-gray-400">Delegated Votes Received</p>
+                <p className="text-sm text-white font-medium">{delegationStatus.delegatedVotes}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-400">Last Updated</p>
+                <p className="text-sm text-white">{delegationStatus.lastUpdated}</p>
+              </div>
+            </div>
           </div>
         </div>
 
