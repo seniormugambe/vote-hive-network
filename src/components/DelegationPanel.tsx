@@ -186,11 +186,11 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
         )}
 
         {/* Action Buttons */}
-        <div className="flex space-x-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Button 
             onClick={handleDelegate}
             disabled={isDelegating || (delegationType === "custom" && !customAddress)}
-            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+            className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
           >
             {isDelegating ? "Delegating..." : "Update Delegation"}
           </Button>
@@ -202,7 +202,20 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
             className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            {isDeleting ? "Deleting..." : "Delete Vote"}
+            {isDeleting ? "Revoking..." : "Revoke Delegation"}
+          </Button>
+
+          <Button
+            onClick={() => {
+              setDelegationType("self");
+              handleDelegate();
+            }}
+            disabled={isDelegating}
+            variant="outline"
+            className="border-gray-500/50 text-gray-400 hover:bg-gray-500/10 hover:text-gray-300"
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Reset to Self
           </Button>
         </div>
       </CardContent>

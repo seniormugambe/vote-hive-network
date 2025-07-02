@@ -8,7 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X, Calendar } from "lucide-react";
 
-export const CreatePoll = () => {
+interface CreatePollProps {
+  onPollCreated?: (pollData: {title: string, description: string, options: string[], duration: string}) => void;
+}
+
+export const CreatePoll = ({ onPollCreated }: CreatePollProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -33,9 +37,23 @@ export const CreatePoll = () => {
 
   const handleCreatePoll = async () => {
     setIsCreating(true);
+    
+    const pollData = {
+      title,
+      description,
+      options: options.filter(opt => opt.trim()),
+      duration
+    };
+    
     // Simulate poll creation
     setTimeout(() => {
       setIsCreating(false);
+      
+      // Call the callback to add poll to parent state
+      if (onPollCreated) {
+        onPollCreated(pollData);
+      }
+      
       // Reset form
       setTitle("");
       setDescription("");

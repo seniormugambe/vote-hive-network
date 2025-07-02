@@ -14,10 +14,28 @@ const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [deletedVotes, setDeletedVotes] = useState(0);
+  const [deletionEvents, setDeletionEvents] = useState<Array<{id: string, timestamp: string, action: string}>>([]);
+  const [createdPolls, setCreatedPolls] = useState<Array<{id: string, title: string, description: string, options: string[], duration: string, createdAt: string, status: string}>>([]);
 
   const handleVoteDeletion = () => {
     setDeletedVotes(prev => prev + 1);
+    const newEvent = {
+      id: Date.now().toString(),
+      timestamp: new Date().toLocaleString(),
+      action: "Delegation Revoked"
+    };
+    setDeletionEvents(prev => [newEvent, ...prev]);
     console.log(`Vote deleted. Total deleted votes: ${deletedVotes + 1}`);
+  };
+
+  const handlePollCreation = (pollData: {title: string, description: string, options: string[], duration: string}) => {
+    const newPoll = {
+      id: Date.now().toString(),
+      ...pollData,
+      createdAt: new Date().toLocaleString(),
+      status: "Active"
+    };
+    setCreatedPolls(prev => [newPoll, ...prev]);
   };
 
   return (
@@ -28,10 +46,9 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <img 
-                src="/lovable-uploads/2622a6dd-905c-4bae-90cd-3231612a2a2c.png" 
+                src="/lovable-uploads/9f9f06fe-1537-42b9-9ed3-33e694cd0cbf.png" 
                 alt="VOTYX Logo" 
-                className="w-10 h-10 brightness-0 saturate-100 invert-0 sepia-100 saturate-7500 hue-rotate-[45deg]"
-                style={{ filter: 'brightness(0) saturate(100%) invert(77%) sepia(81%) saturate(1869%) hue-rotate(1deg) brightness(102%) contrast(101%)' }}
+                className="w-10 h-10"
               />
               <div>
                 <h1 className="text-3xl font-bold text-white">
@@ -222,7 +239,7 @@ const Index = () => {
           // Main dashboard when connected
           <div className="py-8">
             <Tabs defaultValue="delegate" className="space-y-6">
-              <TabsList className="bg-gray-900 border-yellow-500/20 p-1 grid grid-cols-2 w-full max-w-lg mx-auto">
+              <TabsList className="bg-gray-900 border-yellow-500/20 p-1 grid grid-cols-3 w-full max-w-2xl mx-auto">
                 <TabsTrigger 
                   value="delegate" 
                   className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white"
@@ -236,14 +253,112 @@ const Index = () => {
                   <Plus className="h-4 w-4 mr-2" />
                   Create Poll
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="polls" 
+                  className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black text-white"
+                >
+                  <Vote className="h-4 w-4 mr-2" />
+                  View Polls
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="delegate">
-                <DelegationPanel address={walletAddress} expanded={true} onVoteDelete={handleVoteDeletion} />
+                <div className="space-y-6">
+                  <DelegationPanel address={walletAddress} expanded={true} onVoteDelete={handleVoteDeletion} />
+                  
+                  {/* Deletion Events Log */}
+                  <Card className="bg-gray-900/80 border-yellow-500/30">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center space-x-2">
+                        <span>Deletion Events Log</span>
+                        <Badge variant="outline" className="border-red-500/50 text-red-400">
+                          {deletedVotes} Total
+                        </Badge>
+                      </CardTitle>
+                      <CardDescription className="text-gray-300">
+                        Track your delegation revocation history
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {deletionEvents.length === 0 ? (
+                        <p className="text-gray-400 text-center py-4">No deletion events recorded</p>
+                      ) : (
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                          {deletionEvents.map((event) => (
+                            <div key={event.id} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                              <div>
+                                <p className="text-white font-medium">{event.action}</p>
+                                <p className="text-xs text-gray-400">{event.timestamp}</p>
+                              </div>
+                              <Badge variant="outline" className="border-red-500/50 text-red-400">
+                                Event #{deletionEvents.indexOf(event) + 1}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
 
               <TabsContent value="create">
-                <CreatePoll />
+                <CreatePoll onPollCreated={handlePollCreation} />
+              </TabsContent>
+
+              <TabsContent value="polls">
+                <Card className="bg-gray-900/80 border-yellow-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center space-x-2">
+                      <Vote className="h-5 w-5 text-yellow-500" />
+                      <span>Created Polls</span>
+                      <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+                        {createdPolls.length} Total
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="text-gray-300">
+                      View and manage your created polls
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {createdPolls.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Vote className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-400 mb-4">No polls created yet</p>
+                        <p className="text-sm text-gray-500">Create your first poll to get started</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {createdPolls.map((poll) => (
+                          <div key={poll.id} className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-yellow-500/50 transition-colors">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-semibold text-white text-lg">{poll.title}</h4>
+                              <Badge variant={poll.status === "Active" ? "default" : "secondary"} 
+                                     className="bg-green-500/20 text-green-400 border-green-500/50">
+                                {poll.status}
+                              </Badge>
+                            </div>
+                            <p className="text-gray-300 mb-3">{poll.description}</p>
+                            <div className="space-y-2 mb-3">
+                              <p className="text-sm text-gray-400">Options:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {poll.options.map((option, index) => (
+                                  <Badge key={index} variant="outline" className="border-gray-600 text-gray-300">
+                                    {option}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between text-sm text-gray-400">
+                              <span>Duration: {poll.duration}</span>
+                              <span>Created: {poll.createdAt}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>

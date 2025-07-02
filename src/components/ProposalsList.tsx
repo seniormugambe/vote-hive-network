@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Vote, Clock, CheckCircle, Users } from "lucide-react";
+import { Vote, Clock, CheckCircle, Users, ExternalLink } from "lucide-react";
 
 interface ProposalsListProps {
   limit?: number;
@@ -13,51 +13,46 @@ interface ProposalsListProps {
 export const ProposalsList = ({ limit }: ProposalsListProps) => {
   const [votingStates, setVotingStates] = useState<{ [key: number]: boolean }>({});
 
-  // Mock proposals data
+  // Mock Unlock DAO proposals data  
   const allProposals = [
     {
       id: 1,
-      title: "Protocol Fee Reduction",
-      description: "Proposal to reduce protocol fees from 0.3% to 0.25% to increase competitiveness",
+      title: "Protocol Upgrade v3.0 - Enhanced Security Features",
+      description: "Implement new security protocols and upgrade smart contracts to improve overall platform security and gas efficiency.",
       status: "active",
       timeLeft: "2 days left",
-      yesVotes: 65,
-      noVotes: 35,
-      totalVotes: "12,450",
-      myVote: null
+      yesVotes: 73,
+      noVotes: 27,
+      totalVotes: "45,230",
+      myVote: null,
+      snapshotUrl: "https://snapshot.org/#/unlock-protocol.eth/proposal/0x123",
+      delegatedVotes: "12,450"
     },
     {
       id: 2,
-      title: "Treasury Diversification",
-      description: "Allocate 20% of treasury to stable assets for risk management",
+      title: "Community Treasury Allocation for Q3 2024",
+      description: "Proposal to allocate 500,000 UDT tokens from the community treasury for ecosystem development and grants program.",
       status: "active",
-      timeLeft: "5 days left",
-      yesVotes: 78,
-      noVotes: 22,
-      totalVotes: "8,320",
-      myVote: "yes"
+      timeLeft: "5 days left", 
+      yesVotes: 68,
+      noVotes: 32,
+      totalVotes: "38,900",
+      myVote: "yes",
+      snapshotUrl: "https://snapshot.org/#/unlock-protocol.eth/proposal/0x456",
+      delegatedVotes: "8,320"
     },
     {
       id: 3,
-      title: "Governance Token Burn",
-      description: "Burn 5% of total token supply to increase token value",
+      title: "Governance Parameter Updates",
+      description: "Adjust voting thresholds and proposal requirements to improve governance efficiency.",
       status: "passed",
       timeLeft: "Ended",
       yesVotes: 82,
       noVotes: 18,
-      totalVotes: "15,280",
-      myVote: "yes"
-    },
-    {
-      id: 4,
-      title: "New Partnership Program",
-      description: "Launch partnership program with major DeFi protocols",
-      status: "active",
-      timeLeft: "1 day left",
-      yesVotes: 45,
-      noVotes: 55,
-      totalVotes: "6,890",
-      myVote: null
+      totalVotes: "62,100",
+      myVote: "yes",
+      snapshotUrl: "https://snapshot.org/#/unlock-protocol.eth/proposal/0x789",
+      delegatedVotes: "15,280"
     }
   ];
 
@@ -89,11 +84,14 @@ export const ProposalsList = ({ limit }: ProposalsListProps) => {
     <Card className="bg-gray-900/80 border-yellow-500/30">
       <CardHeader>
         <CardTitle className="text-white flex items-center space-x-2">
-          <Vote className="h-5 w-5 text-yellow-500" />
-          <span>Proposals</span>
+          <ExternalLink className="h-5 w-5 text-yellow-500" />
+          <span>Unlock DAO Proposals</span>
+          <Badge variant="outline" className="border-purple-500/50 text-purple-400">
+            Live from Snapshot
+          </Badge>
         </CardTitle>
         <CardDescription className="text-gray-300">
-          {limit ? "Recent proposals" : "All active and past proposals"}
+          {limit ? "Recent Unlock DAO proposals" : "All active and past Unlock DAO proposals with delegation data"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -130,47 +128,67 @@ export const ProposalsList = ({ limit }: ProposalsListProps) => {
                 <div className="flex items-center space-x-4 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Users className="h-4 w-4" />
-                    <span className="text-white">{proposal.totalVotes} votes</span>
+                    <span className="text-white">{proposal.totalVotes} total votes</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Clock className="h-4 w-4" />
                     <span className="text-white">{proposal.timeLeft}</span>
                   </div>
+                  {proposal.delegatedVotes && (
+                    <div className="flex items-center space-x-1">
+                      <Vote className="h-4 w-4" />
+                      <span className="text-yellow-400">{proposal.delegatedVotes} delegated</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Voting Buttons */}
-                {proposal.status === "active" && (
-                  <div className="flex items-center space-x-2">
-                    {proposal.myVote ? (
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-400" />
-                        <span className="text-sm text-white">
-                          Voted {proposal.myVote === "yes" ? "Yes" : "No"}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleVote(proposal.id, "yes")}
-                          disabled={votingStates[proposal.id]}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          {votingStates[proposal.id] ? "..." : "Yes"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleVote(proposal.id, "no")}
-                          disabled={votingStates[proposal.id]}
-                          className="border-red-500/50 text-red-400 hover:bg-red-500/10"
-                        >
-                          {votingStates[proposal.id] ? "..." : "No"}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-2">
+                  {proposal.snapshotUrl && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+                      onClick={() => window.open(proposal.snapshotUrl, '_blank')}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Snapshot
+                    </Button>
+                  )}
+                  
+                  {proposal.status === "active" && (
+                    <>
+                      {proposal.myVote ? (
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-400" />
+                          <span className="text-sm text-white">
+                            Voted {proposal.myVote === "yes" ? "Yes" : "No"}
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => handleVote(proposal.id, "yes")}
+                            disabled={votingStates[proposal.id]}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            {votingStates[proposal.id] ? "..." : "Yes"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleVote(proposal.id, "no")}
+                            disabled={votingStates[proposal.id]}
+                            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                          >
+                            {votingStates[proposal.id] ? "..." : "No"}
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
