@@ -41,9 +41,6 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
   const [history, setHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
-  const [onChainDelegatee, setOnChainDelegatee] = useState<string | null>(null);
-  const [onChainLoading, setOnChainLoading] = useState(false);
-  const [onChainError, setOnChainError] = useState<string | null>(null);
 
   // Mock data - in real app, this would come from blockchain
   const [delegationStatus, setDelegationStatus] = useState({
@@ -150,25 +147,6 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
       });
   }, [address, success, error]);
 
-  // Fetch current on-chain delegatee
-  useEffect(() => {
-    if (!address || !(window as any).ethereum) return;
-    setOnChainLoading(true);
-    setOnChainError(null);
-    (async () => {
-      try {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
-        const contract = new ethers.Contract(UNLOCK_TOKEN_ADDRESS, ERC20Votes_ABI, provider);
-        const delegatee = await contract.delegates(address);
-        setOnChainDelegatee(delegatee);
-      } catch (err: any) {
-        setOnChainError(err.message || "Failed to fetch delegatee");
-      } finally {
-        setOnChainLoading(false);
-      }
-    })();
-  }, [address, success, error]);
-
   const revocationCount = history.filter((h) => h.revoked).length;
 
   const formatAddress = (addr: string) => {
@@ -196,19 +174,6 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
                      className="bg-green-500/20 text-green-400 border-green-500/50">
                 {delegationStatus.currentDelegatee.isActive ? "Active" : "Inactive"}
               </Badge>
-            </div>
-            {/* On-chain delegatee display */}
-            <div className="mb-2">
-              <span className="text-sm text-gray-400">On-chain Delegatee: </span>
-              {onChainLoading ? (
-                <span className="text-gray-400 text-xs">Loading...</span>
-              ) : onChainError ? (
-                <span className="text-red-400 text-xs">{onChainError}</span>
-              ) : onChainDelegatee ? (
-                <span className="text-white font-mono text-xs">{onChainDelegatee.slice(0, 6)}...{onChainDelegatee.slice(-4)}</span>
-              ) : (
-                <span className="text-gray-400 text-xs">Not delegated</span>
-              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
