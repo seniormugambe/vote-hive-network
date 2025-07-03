@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,17 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X, Calendar } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
 
 interface CreatePollProps {
+  address: string;
   onPollCreated?: (pollData: {title: string, description: string, options: string[], duration: string}) => void;
 }
 
-export const CreatePoll = ({ onPollCreated }: CreatePollProps) => {
+export const CreatePoll = ({ address, onPollCreated }: CreatePollProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [duration, setDuration] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const addOption = () => {
     setOptions([...options, ""]);
@@ -37,29 +39,42 @@ export const CreatePoll = ({ onPollCreated }: CreatePollProps) => {
 
   const handleCreatePoll = async () => {
     setIsCreating(true);
-    
-    const pollData = {
-      title,
-      description,
-      options: options.filter(opt => opt.trim()),
-      duration
-    };
-    
-    // Simulate poll creation
-    setTimeout(() => {
-      setIsCreating(false);
-      
-      // Call the callback to add poll to parent state
+    setError(null);
+    try {
+      // 1. Create the poll
+      const { data: poll, error: pollError } = await supabase
+        .from('polls')
+        .insert([{
+          title,
+          description,
+          created_by: address,
+          duration
+        }])
+        .select()
+        .single();
+      if (pollError) throw pollError;
+      // 2. Add options
+      const filteredOptions = options.filter(opt => opt.trim());
+      const { error: optionsError } = await supabase
+        .from('options')
+        .insert(filteredOptions.map(text => ({
+          poll_id: poll.id,
+          text
+        })));
+      if (optionsError) throw optionsError;
+      // 3. Callback and reset
       if (onPollCreated) {
-        onPollCreated(pollData);
+        onPollCreated({ title, description, options: filteredOptions, duration });
       }
-      
-      // Reset form
       setTitle("");
       setDescription("");
       setOptions(["", ""]);
       setDuration("");
-    }, 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create poll.');
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const isFormValid = title && description && options.every(opt => opt.trim()) && duration;
@@ -175,6 +190,13 @@ export const CreatePoll = ({ onPollCreated }: CreatePollProps) => {
               {isCreating ? "Creating Poll..." : "Create Poll"}
             </Button>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="text-sm text-red-500 text-center">
+              {error}
+            </div>
+          )}
 
           {/* Form Validation Info */}
           {!isFormValid && (

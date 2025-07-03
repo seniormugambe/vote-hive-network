@@ -1,9 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { User } from "lucide-react";
+import { ethers } from "ethers";
+import { supabase } from "../lib/supabaseClient";
 
 interface WalletConnectionProps {
   isConnected: boolean;
@@ -19,17 +20,29 @@ export const WalletConnection = ({
   onAddressChange 
 }: WalletConnectionProps) => {
   const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleConnect = async () => {
     setIsConnecting(true);
-    
-    // Simulate wallet connection
-    setTimeout(() => {
-      const mockAddress = "0x1234567890abcdef1234567890abcdef12345678";
-      onAddressChange(mockAddress);
+    setError(null);
+    try {
+      if (!(window as any).ethereum) {
+        setError("No Ethereum wallet found. Please install MetaMask.");
+        setIsConnecting(false);
+        return;
+      }
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const accounts = await provider.send('eth_requestAccounts', []);
+      const walletAddress = accounts[0];
+      onAddressChange(walletAddress);
       onConnect(true);
+      // Upsert wallet address to Supabase users table
+      await supabase.from('users').upsert([{ wallet_address: walletAddress }], { onConflict: 'wallet_address' });
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect wallet.');
+    } finally {
       setIsConnecting(false);
-    }, 1500);
+    }
   };
 
   const handleDisconnect = () => {
@@ -44,13 +57,16 @@ export const WalletConnection = ({
 
   if (!isConnected) {
     return (
-      <Button 
-        onClick={handleConnect}
-        disabled={isConnecting}
-        className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-2 transition-all duration-200 hover:scale-105"
-      >
-        {isConnecting ? "Connecting..." : "Connect Wallet"}
-      </Button>
+      <div className="flex flex-col items-center space-y-2">
+        <Button 
+          onClick={handleConnect}
+          disabled={isConnecting}
+          className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-2 transition-all duration-200 hover:scale-105"
+        >
+          {isConnecting ? "Connecting..." : "Connect Wallet"}
+        </Button>
+        {error && <span className="text-red-500 text-xs">{error}</span>}
+      </div>
     );
   }
 

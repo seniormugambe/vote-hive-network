@@ -1,70 +1,76 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Vote, Clock, CheckCircle, Users, ExternalLink } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
+import { Web3Service } from '@unlock-protocol/unlock-js';
+
+const LOCK_ADDRESS = '0x259813B665C8f6074391028ef782e27B65840d89';
+const NETWORK_ID = 84532; // Base Sepolia
+
+const web3Service = new Web3Service();
+
+async function hasValidKey(lockAddress: string, owner: string, network: number): Promise<boolean> {
+  try {
+    return await web3Service.getHasValidKey({
+      lockAddress,
+      owner,
+      network,
+    });
+  } catch (e) {
+    return false;
+  }
+}
 
 interface ProposalsListProps {
+  address: string;
   limit?: number;
 }
 
-export const ProposalsList = ({ limit }: ProposalsListProps) => {
-  const [votingStates, setVotingStates] = useState<{ [key: number]: boolean }>({});
+export const ProposalsList = ({ address, limit }: ProposalsListProps) => {
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [votingStates, setVotingStates] = useState<{ [key: string]: boolean }>({});
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock Unlock DAO proposals data  
-  const allProposals = [
-    {
-      id: 1,
-      title: "Protocol Upgrade v3.0 - Enhanced Security Features",
-      description: "Implement new security protocols and upgrade smart contracts to improve overall platform security and gas efficiency.",
-      status: "active",
-      timeLeft: "2 days left",
-      yesVotes: 73,
-      noVotes: 27,
-      totalVotes: "45,230",
-      myVote: null,
-      snapshotUrl: "https://snapshot.org/#/unlock-protocol.eth/proposal/0x123",
-      delegatedVotes: "12,450"
-    },
-    {
-      id: 2,
-      title: "Community Treasury Allocation for Q3 2024",
-      description: "Proposal to allocate 500,000 UDT tokens from the community treasury for ecosystem development and grants program.",
-      status: "active",
-      timeLeft: "5 days left", 
-      yesVotes: 68,
-      noVotes: 32,
-      totalVotes: "38,900",
-      myVote: "yes",
-      snapshotUrl: "https://snapshot.org/#/unlock-protocol.eth/proposal/0x456",
-      delegatedVotes: "8,320"
-    },
-    {
-      id: 3,
-      title: "Governance Parameter Updates",
-      description: "Adjust voting thresholds and proposal requirements to improve governance efficiency.",
-      status: "passed",
-      timeLeft: "Ended",
-      yesVotes: 82,
-      noVotes: 18,
-      totalVotes: "62,100",
-      myVote: "yes",
-      snapshotUrl: "https://snapshot.org/#/unlock-protocol.eth/proposal/0x789",
-      delegatedVotes: "15,280"
+  useEffect(() => {
+    const fetchProposals = async () => {
+      const { data, error } = await supabase
+        .from('polls')
+        .select('*, options(*)');
+      if (error) {
+        setError(error.message);
+      } else {
+        setProposals(limit ? data.slice(0, limit) : data);
+      }
+    };
+    fetchProposals();
+  }, [limit]);
+
+  const handleVote = async (pollId: string, optionId: string, vote: "yes" | "no") => {
+    setVotingStates(prev => ({ ...prev, [pollId]: true }));
+    setError(null);
+
+    // Unlock Protocol gating
+    const isKeyHolder = await hasValidKey(LOCK_ADDRESS, address, NETWORK_ID);
+    if (!isKeyHolder) {
+      setError('You must own a membership key to vote.');
+      setVotingStates(prev => ({ ...prev, [pollId]: false }));
+      return;
     }
-  ];
 
-  const proposals = limit ? allProposals.slice(0, limit) : allProposals;
-
-  const handleVote = async (proposalId: number, vote: "yes" | "no") => {
-    setVotingStates(prev => ({ ...prev, [proposalId]: true }));
-    
-    // Simulate voting transaction
-    setTimeout(() => {
-      setVotingStates(prev => ({ ...prev, [proposalId]: false }));
-    }, 2000);
+    try {
+      const { error } = await supabase
+        .from('votes')
+        .insert([{ poll_id: pollId, option_id: optionId, user_wallet_address: address, vote }]);
+      if (error) throw error;
+      // Optionally update UI to reflect the vote
+    } catch (err: any) {
+      setError(err.message || 'Failed to vote.');
+    } finally {
+      setVotingStates(prev => ({ ...prev, [pollId]: false }));
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -87,7 +93,7 @@ export const ProposalsList = ({ limit }: ProposalsListProps) => {
           <ExternalLink className="h-5 w-5 text-yellow-500" />
           <span>Unlock DAO Proposals</span>
           <Badge variant="outline" className="border-purple-500/50 text-purple-400">
-            Live from Snapshot
+            Live from Supabase
           </Badge>
         </CardTitle>
         <CardDescription className="text-gray-300">
@@ -95,6 +101,9 @@ export const ProposalsList = ({ limit }: ProposalsListProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && (
+          <div className="text-sm text-red-500 text-center">{error}</div>
+        )}
         {proposals.map((proposal) => (
           <div key={proposal.id} className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-yellow-500/50 transition-colors">
             <div className="space-y-4">
@@ -110,98 +119,39 @@ export const ProposalsList = ({ limit }: ProposalsListProps) => {
               </div>
 
               {/* Voting Progress */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Yes: {proposal.yesVotes}%</span>
-                  <span className="text-gray-300">No: {proposal.noVotes}%</span>
-                </div>
-                <Progress value={proposal.yesVotes} className="h-2 bg-gray-700">
-                  <div 
-                    className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all"
-                    style={{ width: `${proposal.yesVotes}%` }}
-                  />
-                </Progress>
-              </div>
+              {/* You can calculate yes/no percentages from votes if you fetch them */}
 
               {/* Proposal Stats */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Users className="h-4 w-4" />
-                    <span className="text-white">{proposal.totalVotes} total votes</span>
+                    <span className="text-white">{proposal.options?.length || 0} options</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-white">{proposal.timeLeft}</span>
-                  </div>
-                  {proposal.delegatedVotes && (
-                    <div className="flex items-center space-x-1">
-                      <Vote className="h-4 w-4" />
-                      <span className="text-yellow-400">{proposal.delegatedVotes} delegated</span>
-                    </div>
-                  )}
+                  {/* Add more stats as needed */}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-2">
-                  {proposal.snapshotUrl && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
-                      onClick={() => window.open(proposal.snapshotUrl, '_blank')}
-                    >
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Snapshot
-                    </Button>
-                  )}
-                  
-                  {proposal.status === "active" && (
-                    <>
-                      {proposal.myVote ? (
-                        <div className="flex items-center space-x-2">
-                          <CheckCircle className="h-4 w-4 text-green-400" />
-                          <span className="text-sm text-white">
-                            Voted {proposal.myVote === "yes" ? "Yes" : "No"}
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => handleVote(proposal.id, "yes")}
-                            disabled={votingStates[proposal.id]}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            {votingStates[proposal.id] ? "..." : "Yes"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleVote(proposal.id, "no")}
-                            disabled={votingStates[proposal.id]}
-                            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
-                          >
-                            {votingStates[proposal.id] ? "..." : "No"}
-                          </Button>
-                        </>
-                      )}
-                    </>
+                  {proposal.status === "active" && proposal.options && proposal.options.length > 0 && (
+                    proposal.options.map((option: any) => (
+                      <Button
+                        key={option.id}
+                        size="sm"
+                        onClick={() => handleVote(proposal.id, option.id, option.text.toLowerCase() === 'yes' ? 'yes' : 'no')}
+                        disabled={votingStates[proposal.id]}
+                        className={option.text.toLowerCase() === 'yes' ? "bg-green-600 hover:bg-green-700 text-white" : "border-red-500/50 text-red-400 hover:bg-red-500/10"}
+                        variant={option.text.toLowerCase() === 'yes' ? undefined : "outline"}
+                      >
+                        {votingStates[proposal.id] ? "..." : option.text}
+                      </Button>
+                    ))
                   )}
                 </div>
               </div>
             </div>
           </div>
         ))}
-
-        {limit && proposals.length >= limit && (
-          <Button 
-            variant="outline" 
-            className="w-full border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
-          >
-            View All Proposals
-          </Button>
-        )}
       </CardContent>
     </Card>
   );
