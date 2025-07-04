@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,13 +8,121 @@ import { DelegationPanel } from "@/components/DelegationPanel";
 import { CreatePoll } from "@/components/CreatePoll";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Vote, Users, Plus, Wifi, Battery, Signal, ExternalLink, HelpCircle } from "lucide-react";
+import { InviteDialog } from "@/components/ui/invite-dialog";
+import { supabase } from "@/lib/supabaseClient";
+import { validate as uuidValidate } from 'uuid';
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [deletedVotes, setDeletedVotes] = useState(0);
   const [deletionEvents, setDeletionEvents] = useState<Array<{id: string, timestamp: string, action: string}>>([]);
-  const [createdPolls, setCreatedPolls] = useState<Array<{id: string, title: string, description: string, options: string[], duration: string, createdAt: string, status: string}>>([]);
+  const [createdPolls, setCreatedPolls] = useState<Array<{id: string, title: string, description: string, options: string[], duration: string, created_at: string, status: string}>>([]);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [pollsLoading, setPollsLoading] = useState(false);
+  const [pollsError, setPollsError] = useState<string | null>(null);
+  const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
+  const LOCK_ADDRESS = '0xac27fa800955849d6d17cc8952ba9dd6eaa66187';
+
+  // Add state for vote counts
+  const [voteCounts, setVoteCounts] = useState<{ [pollId: string]: number[] }>({});
+  const [userVotes, setUserVotes] = useState<{ [pollId: string]: number | null }>({});
+
+  // Fetch polls from Supabase on mount
+  useEffect(() => {
+    const fetchPolls = async () => {
+      setPollsLoading(true);
+      setPollsError(null);
+      const { data, error } = await supabase.from('polls').select('*').order('created_at', { ascending: false });
+      if (error) setPollsError(error.message);
+      else setCreatedPolls(
+        (data || [])
+          .filter(poll => uuidValidate(poll.id))
+          .map(poll => ({
+            ...poll,
+            options: poll.options ? JSON.parse(poll.options) : []
+          }))
+      );
+      setPollsLoading(false);
+    };
+    fetchPolls();
+  }, []);
+
+  // Fetch votes for all polls
+  useEffect(() => {
+    const fetchAllVotes = async () => {
+      if (!createdPolls.length) return;
+      const pollIds = createdPolls.map(p => p.id);
+      const { data, error } = await supabase
+        .from('votes')
+        .select('poll_id, option_index, voter');
+      if (error) return;
+      const counts: { [pollId: string]: number[] } = {};
+      const userVotesObj: { [pollId: string]: number | null } = {};
+      createdPolls.forEach(poll => {
+        counts[poll.id] = Array(poll.options.length).fill(0);
+        userVotesObj[poll.id] = null;
+      });
+      (data || []).forEach(vote => {
+        if (counts[vote.poll_id] && typeof vote.option_index === 'number') {
+          counts[vote.poll_id][vote.option_index]++;
+        }
+        if (vote.voter === walletAddress) {
+          userVotesObj[vote.poll_id] = vote.option_index;
+        }
+      });
+      setVoteCounts(counts);
+      setUserVotes(userVotesObj);
+    };
+    fetchAllVotes();
+  }, [createdPolls, walletAddress]);
+
+  // Voting handler
+  const handleVote = async (pollId: string, optionIdx: number) => {
+    if (!walletAddress) {
+      alert("Connect your wallet to vote!");
+      return;
+    }
+    if (userVotes[pollId] !== null) {
+      alert("You have already voted in this poll.");
+      return;
+    }
+    // Extra safety: check pollId is a valid UUID
+    if (!uuidValidate(pollId)) {
+      setPollsError('Invalid poll ID. Cannot vote on this poll.');
+      return;
+    }
+    setPollsLoading(true);
+    setPollsError(null);
+    const { error } = await supabase.from('votes').insert([
+      {
+        poll_id: pollId,
+        voter: walletAddress,
+        option_index: optionIdx
+      }
+    ]);
+    if (error) setPollsError('Failed to vote: ' + error.message);
+    setPollsLoading(false);
+  };
+
+  // Save poll to Supabase on creation
+  const handlePollCreation = async (pollData: {title: string, description: string, options: string[], duration: string}) => {
+    setPollsLoading(true);
+    setPollsError(null);
+    const newPoll = {
+      ...pollData,
+      options: JSON.stringify(Array.isArray(pollData.options) ? pollData.options : [pollData.options]),
+      created_at: new Date().toISOString(),
+      status: "Active"
+    };
+    const { data, error } = await supabase.from('polls').insert([newPoll]).select();
+    if (error) {
+      setPollsError(error.message);
+    } else if (data && data.length > 0) {
+      setCreatedPolls(prev => [{ ...data[0], options: data[0].options ? JSON.parse(data[0].options) : [] }, ...prev]);
+    }
+    setPollsLoading(false);
+  };
 
   const handleVoteDeletion = () => {
     setDeletedVotes(prev => prev + 1);
@@ -25,16 +133,6 @@ const Index = () => {
     };
     setDeletionEvents(prev => [newEvent, ...prev]);
     console.log(`Vote deleted. Total deleted votes: ${deletedVotes + 1}`);
-  };
-
-  const handlePollCreation = (pollData: {title: string, description: string, options: string[], duration: string}) => {
-    const newPoll = {
-      id: Date.now().toString(),
-      ...pollData,
-      createdAt: new Date().toLocaleString(),
-      status: "Active"
-    };
-    setCreatedPolls(prev => [newPoll, ...prev]);
   };
 
   return (
@@ -55,6 +153,10 @@ const Index = () => {
                 </h1>
                 <p className="text-gray-300 text-sm">Delegation-Based Voting System</p>
               </div>
+              <Button size="sm" style={{ background: '#FFD600', color: '#222', fontWeight: 'bold', border: '2px solid #FFB300', marginLeft: 16 }} onClick={() => setInviteOpen(true)}>
+                Invite
+              </Button>
+              <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} appUrl={APP_URL} lockAddress={LOCK_ADDRESS} />
             </div>
             <WalletConnection 
               isConnected={isConnected}
@@ -302,7 +404,7 @@ const Index = () => {
               </TabsContent>
 
               <TabsContent value="create">
-                <CreatePoll onPollCreated={handlePollCreation} />
+                <CreatePoll address={walletAddress} onPollCreated={handlePollCreation} />
               </TabsContent>
 
               <TabsContent value="polls">
@@ -320,7 +422,11 @@ const Index = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {createdPolls.length === 0 ? (
+                    {pollsLoading ? (
+                      <div className="text-center py-8 text-yellow-400">Loading polls...</div>
+                    ) : pollsError ? (
+                      <div className="text-center py-8 text-red-500">{pollsError}</div>
+                    ) : createdPolls.length === 0 ? (
                       <div className="text-center py-8">
                         <Vote className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-400 mb-4">No polls created yet</p>
@@ -342,15 +448,19 @@ const Index = () => {
                               <p className="text-sm text-gray-400">Options:</p>
                               <div className="flex flex-wrap gap-2">
                                 {poll.options.map((option, index) => (
-                                  <Badge key={index} variant="outline" className="border-gray-600 text-gray-300">
-                                    {option}
-                                  </Badge>
+                                  <div key={option + index} className="flex items-center gap-2">
+                                    <Badge variant="outline" className="border-gray-600 text-gray-300">
+                                      {option}
+                                    </Badge>
+                                    {/* Removed voting button */}
+                                    <span className="text-xs text-gray-400 ml-2">Votes: {voteCounts[poll.id]?.[index] || 0}</span>
+                                  </div>
                                 ))}
                               </div>
                             </div>
                             <div className="flex items-center justify-between text-sm text-gray-400">
                               <span>Duration: {poll.duration}</span>
-                              <span>Created: {poll.createdAt}</span>
+                              <span>Created: {poll.created_at}</span>
                             </div>
                           </div>
                         ))}
