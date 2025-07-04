@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Vote, Clock, CheckCircle, Users, ExternalLink } from "lucide-react";
-import { supabase } from "../lib/supabaseClient";
 import { Web3Service } from '@unlock-protocol/unlock-js';
+import { InviteDialog } from "@/components/ui/invite-dialog";
 
-const LOCK_ADDRESS = '0x259813B665C8f6074391028ef782e27B65840d89';
-const NETWORK_ID = 84532; // Base Sepolia
+const APP_URL = window.location.origin;
+const LOCK_ADDRESS = '0xac27fa800955849d6d17cc8952ba9dd6eaa66187';
+const NETWORK_ID = 8453; // Base Mainnet chain ID
 
 const web3Service = new Web3Service();
 
@@ -27,50 +28,68 @@ async function hasValidKey(lockAddress: string, owner: string, network: number):
 interface ProposalsListProps {
   address: string;
   limit?: number;
+  polls: Array<{
+    id: string;
+    title: string;
+    description: string;
+    options: string[];
+    duration: string;
+    createdAt: string;
+    status: string;
+  }>;
 }
 
-export const ProposalsList = ({ address, limit }: ProposalsListProps) => {
-  const [proposals, setProposals] = useState<any[]>([]);
+export const ProposalsList = ({ address, limit, polls }: ProposalsListProps) => {
+  const [votes, setVotes] = useState<{ [pollId: string]: { [optionIdx: number]: number } }>({});
+  const [userVotes, setUserVotes] = useState<{ [pollId: string]: number | null }>({});
   const [votingStates, setVotingStates] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<string | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
+  // Initialize votes state for each poll
   useEffect(() => {
-    const fetchProposals = async () => {
-      const { data, error } = await supabase
-        .from('polls')
-        .select('*, options(*)');
-      if (error) {
-        setError(error.message);
-      } else {
-        setProposals(limit ? data.slice(0, limit) : data);
+    const initialVotes: { [pollId: string]: { [optionIdx: number]: number } } = {};
+    const initialUserVotes: { [pollId: string]: number | null } = {};
+    polls.forEach((poll) => {
+      if (!votes[poll.id]) {
+        initialVotes[poll.id] = {};
+        poll.options.forEach((_, idx) => {
+          initialVotes[poll.id][idx] = 0;
+        });
       }
-    };
-    fetchProposals();
-  }, [limit]);
+      if (!userVotes[poll.id]) {
+        initialUserVotes[poll.id] = null;
+      }
+    });
+    setVotes((prev) => ({ ...initialVotes, ...prev }));
+    setUserVotes((prev) => ({ ...initialUserVotes, ...prev }));
+    // eslint-disable-next-line
+  }, [polls]);
 
-  const handleVote = async (pollId: string, optionId: string, vote: "yes" | "no") => {
-    setVotingStates(prev => ({ ...prev, [pollId]: true }));
+  const handleVote = async (pollId: string, optionIdx: number) => {
+    setVotingStates((prev) => ({ ...prev, [pollId]: true }));
     setError(null);
-
     // Unlock Protocol gating
     const isKeyHolder = await hasValidKey(LOCK_ADDRESS, address, NETWORK_ID);
     if (!isKeyHolder) {
       setError('You must own a membership key to vote.');
-      setVotingStates(prev => ({ ...prev, [pollId]: false }));
+      setVotingStates((prev) => ({ ...prev, [pollId]: false }));
       return;
     }
-
-    try {
-      const { error } = await supabase
-        .from('votes')
-        .insert([{ poll_id: pollId, option_id: optionId, user_wallet_address: address, vote }]);
-      if (error) throw error;
-      // Optionally update UI to reflect the vote
-    } catch (err: any) {
-      setError(err.message || 'Failed to vote.');
-    } finally {
-      setVotingStates(prev => ({ ...prev, [pollId]: false }));
+    if (userVotes[pollId] !== null) {
+      setError('You have already voted in this poll.');
+      setVotingStates((prev) => ({ ...prev, [pollId]: false }));
+      return;
     }
+    setVotes((prev) => ({
+      ...prev,
+      [pollId]: {
+        ...prev[pollId],
+        [optionIdx]: (prev[pollId]?.[optionIdx] || 0) + 1,
+      },
+    }));
+    setUserVotes((prev) => ({ ...prev, [pollId]: optionIdx }));
+    setVotingStates((prev) => ({ ...prev, [pollId]: false }));
   };
 
   const getStatusBadge = (status: string) => {
@@ -95,7 +114,11 @@ export const ProposalsList = ({ address, limit }: ProposalsListProps) => {
           <Badge variant="outline" className="border-purple-500/50 text-purple-400">
             Live from Supabase
           </Badge>
+          <Button size="sm" style={{ background: '#FFD600', color: '#222', fontWeight: 'bold', border: '2px solid #FFB300', marginLeft: 16 }} onClick={() => setInviteOpen(true)}>
+            Invite
+          </Button>
         </CardTitle>
+        <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} appUrl={APP_URL} lockAddress={LOCK_ADDRESS} />
         <CardDescription className="text-gray-300">
           {limit ? "Recent Unlock DAO proposals" : "All active and past Unlock DAO proposals with delegation data"}
         </CardDescription>
@@ -104,17 +127,17 @@ export const ProposalsList = ({ address, limit }: ProposalsListProps) => {
         {error && (
           <div className="text-sm text-red-500 text-center">{error}</div>
         )}
-        {proposals.map((proposal) => (
-          <div key={proposal.id} className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-yellow-500/50 transition-colors">
+        {polls.map((poll) => (
+          <div key={poll.id} className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-yellow-500/50 transition-colors">
             <div className="space-y-4">
               {/* Proposal Header */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="font-semibold text-white text-lg">{proposal.title}</h4>
-                  <p className="text-gray-300 text-sm mt-1">{proposal.description}</p>
+                  <h4 className="font-semibold text-white text-lg">{poll.title}</h4>
+                  <p className="text-gray-300 text-sm mt-1">{poll.description}</p>
                 </div>
                 <div className="flex items-center space-x-2 ml-4">
-                  {getStatusBadge(proposal.status)}
+                  {getStatusBadge(poll.status)}
                 </div>
               </div>
 
@@ -126,24 +149,24 @@ export const ProposalsList = ({ address, limit }: ProposalsListProps) => {
                 <div className="flex items-center space-x-4 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Users className="h-4 w-4" />
-                    <span className="text-white">{proposal.options?.length || 0} options</span>
+                    <span className="text-white">{poll.options?.length || 0} options</span>
                   </div>
                   {/* Add more stats as needed */}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-2">
-                  {proposal.status === "active" && proposal.options && proposal.options.length > 0 && (
-                    proposal.options.map((option: any) => (
+                  {poll.status === "active" && poll.options && poll.options.length > 0 && (
+                    poll.options.map((option: string, idx: number) => (
                       <Button
-                        key={option.id}
+                        key={idx}
                         size="sm"
-                        onClick={() => handleVote(proposal.id, option.id, option.text.toLowerCase() === 'yes' ? 'yes' : 'no')}
-                        disabled={votingStates[proposal.id]}
-                        className={option.text.toLowerCase() === 'yes' ? "bg-green-600 hover:bg-green-700 text-white" : "border-red-500/50 text-red-400 hover:bg-red-500/10"}
-                        variant={option.text.toLowerCase() === 'yes' ? undefined : "outline"}
+                        onClick={() => handleVote(poll.id, idx)}
+                        disabled={votingStates[poll.id]}
+                        className={idx === userVotes[poll.id] ? "bg-green-600 hover:bg-green-700 text-white" : "border-red-500/50 text-red-400 hover:bg-red-500/10"}
+                        variant={idx === userVotes[poll.id] ? undefined : "outline"}
                       >
-                        {votingStates[proposal.id] ? "..." : option.text}
+                        {votingStates[poll.id] ? "..." : option}
                       </Button>
                     ))
                   )}

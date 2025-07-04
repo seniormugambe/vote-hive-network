@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X, Calendar } from "lucide-react";
-import { supabase } from "../lib/supabaseClient";
 
 interface CreatePollProps {
   address: string;
@@ -41,28 +40,7 @@ export const CreatePoll = ({ address, onPollCreated }: CreatePollProps) => {
     setIsCreating(true);
     setError(null);
     try {
-      // 1. Create the poll
-      const { data: poll, error: pollError } = await supabase
-        .from('polls')
-        .insert([{
-          title,
-          description,
-          created_by: address,
-          duration
-        }])
-        .select()
-        .single();
-      if (pollError) throw pollError;
-      // 2. Add options
       const filteredOptions = options.filter(opt => opt.trim());
-      const { error: optionsError } = await supabase
-        .from('options')
-        .insert(filteredOptions.map(text => ({
-          poll_id: poll.id,
-          text
-        })));
-      if (optionsError) throw optionsError;
-      // 3. Callback and reset
       if (onPollCreated) {
         onPollCreated({ title, description, options: filteredOptions, duration });
       }

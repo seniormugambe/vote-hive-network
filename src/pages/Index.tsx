@@ -9,6 +9,10 @@ import { DelegationPanel } from "@/components/DelegationPanel";
 import { CreatePoll } from "@/components/CreatePoll";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Vote, Users, Plus, Wifi, Battery, Signal, ExternalLink, HelpCircle } from "lucide-react";
+import { InviteDialog } from "@/components/ui/invite-dialog";
+
+const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
+const LOCK_ADDRESS = '0xac27fa800955849d6d17cc8952ba9dd6eaa66187';
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -16,6 +20,7 @@ const Index = () => {
   const [deletedVotes, setDeletedVotes] = useState(0);
   const [deletionEvents, setDeletionEvents] = useState<Array<{id: string, timestamp: string, action: string}>>([]);
   const [createdPolls, setCreatedPolls] = useState<Array<{id: string, title: string, description: string, options: string[], duration: string, createdAt: string, status: string}>>([]);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const handleVoteDeletion = () => {
     setDeletedVotes(prev => prev + 1);
@@ -57,14 +62,20 @@ const Index = () => {
                 <p className="text-gray-300 text-sm">Delegation-Based Voting System</p>
               </div>
             </div>
-            <WalletConnection 
-              isConnected={isConnected}
-              onConnect={setIsConnected}
-              address={walletAddress}
-              onAddressChange={setWalletAddress}
-            />
+            <div className="flex items-center gap-4">
+              <Button size="sm" style={{ background: '#FFD600', color: '#222', fontWeight: 'bold', border: '2px solid #FFB300' }} onClick={() => setInviteOpen(true)}>
+                Invite
+              </Button>
+              <WalletConnection 
+                isConnected={isConnected}
+                onConnect={setIsConnected}
+                address={walletAddress}
+                onAddressChange={setWalletAddress}
+              />
+            </div>
           </div>
         </div>
+        <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} appUrl={APP_URL} lockAddress={LOCK_ADDRESS} />
       </div>
 
       <div className="container mx-auto px-6">

@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Users, User, CheckCircle, ArrowRight, Trash2 } from "lucide-react";
 import { ethers } from "ethers";
 import { supabase } from "../lib/supabaseClient";
+import { InviteDialog } from "@/components/ui/invite-dialog";
 
 // Unlock Protocol Token (ERC20Votes) on Base
 const UNLOCK_TOKEN_ADDRESS = "0xac27fa800955849d6d17cc8952ba9dd6eaa66187";
@@ -41,6 +42,7 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
   const [history, setHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // Mock data - in real app, this would come from blockchain
   const [delegationStatus, setDelegationStatus] = useState({
@@ -59,6 +61,9 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
     { address: "0xdef456...", name: "Bob Governance", votes: "8,320", successRate: "87%" },
     { address: "0x789xyz...", name: "Carol DAO", votes: "6,180", successRate: "95%" }
   ];
+
+  const APP_URL = window.location.origin;
+  const LOCK_ADDRESS = '0xac27fa800955849d6d17cc8952ba9dd6eaa66187';
 
   // Helper to get the delegatee address based on selection
   const getDelegatee = () => {
@@ -158,10 +163,14 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
       <CardHeader>
         <CardTitle className="text-white flex items-center space-x-2">
           <Users className="h-5 w-5 text-yellow-500" />
-          <span>Delegation Manager</span>
+          <span>Delegation Panel</span>
+          <Button size="sm" style={{ background: '#FFD600', color: '#222', fontWeight: 'bold', border: '2px solid #FFB300', marginLeft: 16 }} onClick={() => setInviteOpen(true)}>
+            Invite
+          </Button>
         </CardTitle>
+        <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} appUrl={APP_URL} lockAddress={LOCK_ADDRESS} />
         <CardDescription className="text-gray-300">
-          Delegate your voting power or vote directly
+          Manage your delegation and invite others to participate.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
