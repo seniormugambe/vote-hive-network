@@ -20,8 +20,8 @@ const ERC20Votes_ABI = [
 ];
 
 const stewards = [
-  { address: "0xabc123456789abcdef0000000000000000000001", name: "Alice Protocol" },
-  { address: "0xdef123456789abcdef0000000000000000000002", name: "Bob Governance" },
+  { address: "0xabc123456789abcdef0000000000000000000001", name: "Mr Dhaboye" },
+  { address: "0xdef123456789abcdef0000000000000000000002", name: "Rena Governance" },
   { address: "0x789123456789abcdef0000000000000000000003", name: "Carol DAO" }
 ];
 
@@ -57,8 +57,8 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
   });
 
   const popularDelegates = [
-    { address: "0xabc123...", name: "Alice Protocol", votes: "12,450", successRate: "92%" },
-    { address: "0xdef456...", name: "Bob Governance", votes: "8,320", successRate: "87%" },
+    { address: "0xabc123...", name: "Mr Dhaboye", votes: "12,450", successRate: "92%" },
+    { address: "0xdef456...", name: "Rena Governance", votes: "8,320", successRate: "87%" },
     { address: "0x789xyz...", name: "Carol DAO", votes: "6,180", successRate: "95%" }
   ];
 
@@ -258,7 +258,7 @@ export const DelegationPanel = ({ address, expanded = false, onVoteDelete }: Del
               <Label htmlFor="popular" className="text-white cursor-pointer flex-1">
                 <div className="flex items-center space-x-2">
                   <Users className="h-4 w-4 text-yellow-500" />
-                  <span>Choose from Popular Delegates</span>
+                  <span>Choose from Popular Unlock Stewards</span>
                 </div>
                 <p className="text-sm text-gray-400 mt-1">Select from trusted community members</p>
                 <select

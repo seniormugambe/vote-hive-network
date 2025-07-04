@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,10 +8,6 @@ import { DelegationPanel } from "@/components/DelegationPanel";
 import { CreatePoll } from "@/components/CreatePoll";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Vote, Users, Plus, Wifi, Battery, Signal, ExternalLink, HelpCircle } from "lucide-react";
-import { InviteDialog } from "@/components/ui/invite-dialog";
-
-const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
-const LOCK_ADDRESS = '0xac27fa800955849d6d17cc8952ba9dd6eaa66187';
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -20,7 +15,6 @@ const Index = () => {
   const [deletedVotes, setDeletedVotes] = useState(0);
   const [deletionEvents, setDeletionEvents] = useState<Array<{id: string, timestamp: string, action: string}>>([]);
   const [createdPolls, setCreatedPolls] = useState<Array<{id: string, title: string, description: string, options: string[], duration: string, createdAt: string, status: string}>>([]);
-  const [inviteOpen, setInviteOpen] = useState(false);
 
   const handleVoteDeletion = () => {
     setDeletedVotes(prev => prev + 1);
@@ -62,20 +56,14 @@ const Index = () => {
                 <p className="text-gray-300 text-sm">Delegation-Based Voting System</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Button size="sm" style={{ background: '#FFD600', color: '#222', fontWeight: 'bold', border: '2px solid #FFB300' }} onClick={() => setInviteOpen(true)}>
-                Invite
-              </Button>
-              <WalletConnection 
-                isConnected={isConnected}
-                onConnect={setIsConnected}
-                address={walletAddress}
-                onAddressChange={setWalletAddress}
-              />
-            </div>
+            <WalletConnection 
+              isConnected={isConnected}
+              onConnect={setIsConnected}
+              address={walletAddress}
+              onAddressChange={setWalletAddress}
+            />
           </div>
         </div>
-        <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} appUrl={APP_URL} lockAddress={LOCK_ADDRESS} />
       </div>
 
       <div className="container mx-auto px-6">
@@ -96,7 +84,7 @@ const Index = () => {
                 
                 <TooltipProvider>
                   <div className="grid gap-8">
-                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500/5 hover:via-purple-500/5 hover:to-blue-500/5 hover:bg-[length:200%_200%] hover:animate-holographic hover:shadow-lg hover:shadow-yellow-500/20">
                       <div className="p-4 bg-yellow-500/20 rounded-lg">
                         <Vote className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                       </div>
@@ -116,7 +104,7 @@ const Index = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500/5 hover:via-purple-500/5 hover:to-blue-500/5 hover:bg-[length:200%_200%] hover:animate-holographic hover:shadow-lg hover:shadow-yellow-500/20">
                       <div className="p-4 bg-yellow-500/20 rounded-lg">
                         <Users className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                       </div>
@@ -144,7 +132,7 @@ const Index = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500/5 hover:via-purple-500/5 hover:to-blue-500/5 hover:bg-[length:200%_200%] hover:animate-holographic hover:shadow-lg hover:shadow-yellow-500/20">
                       <div className="p-4 bg-yellow-500/20 rounded-lg">
                         <ExternalLink className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                       </div>
@@ -177,9 +165,9 @@ const Index = () => {
 
               {/* Right Content - iPhone 13 Pro Mockup */}
               <div className="flex justify-center lg:justify-center">
-                <div className="relative">
+                <div className="relative" style={{ perspective: '1000px' }}>
                   {/* iPhone 13 Pro Frame - More realistic proportions */}
-                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative">
+                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative animate-wiggle-slow">
                     {/* iPhone 13 Pro Camera Notch */}
                     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-7 bg-black rounded-2xl z-20 border border-gray-800"></div>
                     
