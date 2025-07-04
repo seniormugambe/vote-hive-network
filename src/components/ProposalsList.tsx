@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Vote, Clock, CheckCircle, Users, ExternalLink } from "lucide-react";
 import { Web3Service } from '@unlock-protocol/unlock-js';
 import { InviteDialog } from "@/components/ui/invite-dialog";
+import { supabase } from "@/lib/supabaseClient";
 
 const APP_URL = window.location.origin;
 const LOCK_ADDRESS = '0xac27fa800955849d6d17cc8952ba9dd6eaa66187';
@@ -15,11 +16,7 @@ const web3Service = new Web3Service();
 
 async function hasValidKey(lockAddress: string, owner: string, network: number): Promise<boolean> {
   try {
-    return await web3Service.getHasValidKey({
-      lockAddress,
-      owner,
-      network,
-    });
+    return await web3Service.getHasValidKey(lockAddress, owner, network);
   } catch (e) {
     return false;
   }
@@ -66,30 +63,10 @@ export const ProposalsList = ({ address, limit, polls }: ProposalsListProps) => 
     // eslint-disable-next-line
   }, [polls]);
 
+  // Disable voting logic
   const handleVote = async (pollId: string, optionIdx: number) => {
-    setVotingStates((prev) => ({ ...prev, [pollId]: true }));
-    setError(null);
-    // Unlock Protocol gating
-    const isKeyHolder = await hasValidKey(LOCK_ADDRESS, address, NETWORK_ID);
-    if (!isKeyHolder) {
-      setError('You must own a membership key to vote.');
-      setVotingStates((prev) => ({ ...prev, [pollId]: false }));
-      return;
-    }
-    if (userVotes[pollId] !== null) {
-      setError('You have already voted in this poll.');
-      setVotingStates((prev) => ({ ...prev, [pollId]: false }));
-      return;
-    }
-    setVotes((prev) => ({
-      ...prev,
-      [pollId]: {
-        ...prev[pollId],
-        [optionIdx]: (prev[pollId]?.[optionIdx] || 0) + 1,
-      },
-    }));
-    setUserVotes((prev) => ({ ...prev, [pollId]: optionIdx }));
-    setVotingStates((prev) => ({ ...prev, [pollId]: false }));
+    setError('Voting is currently disabled.');
+    return;
   };
 
   const getStatusBadge = (status: string) => {
@@ -162,11 +139,11 @@ export const ProposalsList = ({ address, limit, polls }: ProposalsListProps) => 
                         key={idx}
                         size="sm"
                         onClick={() => handleVote(poll.id, idx)}
-                        disabled={votingStates[poll.id]}
-                        className={idx === userVotes[poll.id] ? "bg-green-600 hover:bg-green-700 text-white" : "border-red-500/50 text-red-400 hover:bg-red-500/10"}
-                        variant={idx === userVotes[poll.id] ? undefined : "outline"}
+                        disabled={true} // Voting is disabled
+                        className={"opacity-50 cursor-not-allowed border-red-500/50 text-red-400"}
+                        variant={"outline"}
                       >
-                        {votingStates[poll.id] ? "..." : option}
+                        {option}
                       </Button>
                     ))
                   )}
