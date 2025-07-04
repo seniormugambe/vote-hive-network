@@ -166,9 +166,9 @@ const Index = () => {
 
               {/* Right Content - iPhone 13 Pro Mockup */}
               <div className="flex justify-center lg:justify-center">
-                <div className="relative">
+                <div className="relative" style={{ perspective: '1000px' }}>
                   {/* iPhone 13 Pro Frame - More realistic proportions */}
-                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative">
+                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative animate-rotate-slow" style={{ transformStyle: 'preserve-3d' }}>
                     {/* iPhone 13 Pro Camera Notch */}
                     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-7 bg-black rounded-2xl z-20 border border-gray-800"></div>
                     
