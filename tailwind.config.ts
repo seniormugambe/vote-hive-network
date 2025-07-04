@@ -101,12 +101,30 @@ export default {
 					'100%': {
 						transform: 'rotateY(360deg) rotateX(0deg)'
 					}
+				},
+				'counter-rotate': {
+					'0%': {
+						transform: 'rotateY(0deg) rotateX(0deg)'
+					},
+					'25%': {
+						transform: 'rotateY(-90deg) rotateX(-10deg)'
+					},
+					'50%': {
+						transform: 'rotateY(-180deg) rotateX(0deg)'
+					},
+					'75%': {
+						transform: 'rotateY(-270deg) rotateX(10deg)'
+					},
+					'100%': {
+						transform: 'rotateY(-360deg) rotateX(0deg)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'rotate-slow': 'rotate-slow 8s ease-in-out infinite'
+				'rotate-slow': 'rotate-slow 8s ease-in-out infinite',
+				'counter-rotate': 'counter-rotate 8s ease-in-out infinite'
 			}
 		}
 	},
