@@ -96,7 +96,7 @@ const Index = () => {
                 
                 <TooltipProvider>
                   <div className="grid gap-8">
-                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500/5 hover:via-purple-500/5 hover:to-blue-500/5 hover:bg-[length:200%_200%] hover:animate-holographic hover:shadow-lg hover:shadow-yellow-500/20">
                       <div className="p-4 bg-yellow-500/20 rounded-lg">
                         <Vote className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                       </div>
@@ -116,7 +116,7 @@ const Index = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500/5 hover:via-purple-500/5 hover:to-blue-500/5 hover:bg-[length:200%_200%] hover:animate-holographic hover:shadow-lg hover:shadow-yellow-500/20">
                       <div className="p-4 bg-yellow-500/20 rounded-lg">
                         <Users className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                       </div>
@@ -144,7 +144,7 @@ const Index = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="flex items-start space-x-6 p-8 bg-gradient-to-r from-gray-900/80 to-gray-800/60 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500/5 hover:via-purple-500/5 hover:to-blue-500/5 hover:bg-[length:200%_200%] hover:animate-holographic hover:shadow-lg hover:shadow-yellow-500/20">
                       <div className="p-4 bg-yellow-500/20 rounded-lg">
                         <ExternalLink className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                       </div>
@@ -177,9 +177,9 @@ const Index = () => {
 
               {/* Right Content - iPhone 13 Pro Mockup */}
               <div className="flex justify-center lg:justify-center">
-                <div className="relative">
+                <div className="relative" style={{ perspective: '1000px' }}>
                   {/* iPhone 13 Pro Frame - More realistic proportions */}
-                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative">
+                  <div className="w-80 h-[620px] bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-[3.5rem] p-3 shadow-2xl border-2 border-gray-700 relative animate-wiggle-slow">
                     {/* iPhone 13 Pro Camera Notch */}
                     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-7 bg-black rounded-2xl z-20 border border-gray-800"></div>
                     
