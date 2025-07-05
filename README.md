@@ -1,9 +1,14 @@
+# VOTYX - Delegation-Based Voting System
+
+**Delegation-Based Voting System**
+
+VOTYX is a A next-generation decentralised delegation-based voting system built for the future. Connect your wallet to participate in governance, delegate your voting power, or create polls with ease. Decentralized voting application that ensures transparent, secure, and trustworthy delegation processes.
+
 **Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
+If you want to work locally using your own IDE, you can clone this repo and push changes.
 The only requirement is having Node.js & npm installed 
-Follow these steps:
+
+**Follow these steps:**
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
@@ -17,38 +22,48 @@ npm i
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
-**Edit a file directly in GitHub**
+## Features
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Blockchain-Powered**: All delegations are stored on the blockchain for transparency
+- **Secure and Smart Delegation**: One delegation per address with cryptographic security
+- **Poll Creation**: Easy-to-use interface for creating custom polls
+- **Real-time Results**: Live vote counting and results display
+- **MetaMask Integration**: Seamless wallet connection and transaction signing
+- **Responsive Design**: Works perfectly on desktop and mobile devices
+  **Invite Button**: Allows to invite someone to vote/delegate
 
-**Use GitHub Codespaces**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Technology Stack
 
-## What technologies are used for this project?
+- **Frontend**: React, TypeScript, Tailwind CSS, shadcn-ui,Vite
+- **Blockchain**: Solidity, Unlock Protocol
+- **Web3**: Ethers.js for blockchain interaction
+- **Wallet**: MetaMask integration
 
-This project is built with:
+## Getting Started
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. **Install MetaMask**: Download and install the MetaMask browser extension
+2. **Connect Wallet**: Click "Connect Wallet" to link your MetaMask account
+3. **Delegate voting rights**: You can delegate to self, to any unlock stewards or to custom address                                   
+4. **Create Polls**: Use the "Create Poll" feature to start voting
 
-## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/8db25307-2ae8-4c0d-a510-240de02a3c13) and click on Share -> Publish.
+## VOTYX INTERFACE
+![Screenshot](./public/Screens/SCREEN%201.png)
+![Screenshot](./public/Screens/SCREEN%202.png)
+![Screenshot](./public/Screens/SCREEN%203.png)
+![Screenshot](./public/Screens/SCREEN%204.png)
+![Screenshot](./public/Screens/SCREEN%205.png)
 
-## Can I connect a custom domain to my Lovable project?
 
-Yes, you can!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+VOTYX is built with modern web technologies and blockchain best practices. Contributions are welcome!
+
+## License
+
+This project is open-source and available under the MIT License.
+
+---
+
