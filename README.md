@@ -50,17 +50,16 @@ npm run dev
 
 ## VOTYX INTERFACE
 
-**Welcome Screen**
+## Welcome Screen
 ![Screenshot](./public/Screens/SCREEN%201.png)
-**Delegation Panel**
+## Delegation Panel
 ![Screenshot](./public/Screens/SCREEN%202.png)
-**Create Poll Panel**
+## Delegations & Deletions Panel
 ![Screenshot](./public/Screens/SCREEN%203.png)
-****
+## Create Poll Panel
 ![Screenshot](./public/Screens/SCREEN%204.png)
-**View Polls Screen**
+## View Polls Screen
 ![Screenshot](./public/Screens/SCREEN%205.png)
-
 
 
 ## Contributing
