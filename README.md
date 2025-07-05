@@ -61,6 +61,7 @@ npm run dev
 ## View Polls Screen
 ![Screenshot](./public/Screens/SCREEN%205.png)
 
+##Deployed Link: https://votlyx.onrender.com
 
 ## Contributing
 
