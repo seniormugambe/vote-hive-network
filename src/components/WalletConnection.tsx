@@ -37,7 +37,7 @@ export const WalletConnection = ({
       onAddressChange(walletAddress);
       onConnect(true);
       // Upsert wallet address to Supabase users table
-      await supabase.from('users').upsert([{ wallet_address: walletAddress }], { onConflict: 'wallet_address' });
+      await supabase.from('users').upsert([{ wallet_address: walletAddress }]);
     } catch (err: any) {
       setError(err.message || 'Failed to connect wallet.');
     } finally {
